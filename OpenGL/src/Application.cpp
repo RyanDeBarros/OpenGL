@@ -12,6 +12,7 @@
 #include "VertexBufferLayout.h"
 #include "VertexArray.h"
 #include "Shader.h"
+#include "Texture.h"
 
 int main()
 {
@@ -40,11 +41,14 @@ int main()
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
 	{
+		GLCall(glEnable(GL_BLEND))
+		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
 		float positions[] = {
-			-0.5f, -0.5f, // 0
-			 0.5f, -0.5f, // 1
-			 0.5f,  0.5f, // 2
-			-0.5f,  0.5f, // 3
+			-0.5f, -0.5f, 0.0f, 0.0f, // 0
+			 0.5f, -0.5f, 1.0f, 0.0f, // 1
+			 0.5f,  0.5f, 1.0f, 1.0f, // 2
+			-0.5f,  0.5f, 0.0f, 1.0f // 3
 		};
 
 		unsigned int indices[] = {
@@ -53,15 +57,22 @@ int main()
 		};
 
 		VertexArray va;
-		VertexBuffer vb(positions, 4 * 2 * sizeof(float));
+		VertexBuffer vb(positions, 4 * 4 * sizeof(float));
 
 		VertexBufferLayout layout;
+		layout.push<float>(2);
 		layout.push<float>(2);
 		va.add_buffer(vb, layout);
 
 		IndexBuffer ib(indices, 3 * 2);
 
 		Shader shader("res/shaders/Basic.shader");
+		shader.bind();
+
+		Texture texture("res/textures/TheChernoLogo.png");
+		const int slot = 0;
+		texture.bind(slot);
+		shader.set_uniform_1i("u_Texture", slot);
 
 		shader.unbind();
 		va.unbind();
@@ -70,7 +81,7 @@ int main()
 		Renderer renderer;
 
 		float r = 0.0f;
-		float increment = 2.0f;
+		float increment = 3.0f;
 
 		const double fpsLimit = 1.0 / 60.0;
 		double lastUpdateTime = 0;	// number of seconds since the last loop

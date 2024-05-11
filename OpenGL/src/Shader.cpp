@@ -8,7 +8,7 @@
 
 #include "Renderer.h"
 
-Shader::Shader(const std::string& filepath) : m_FilePath(filepath)
+Shader::Shader(const std::string& filepath) : m_RendererID(0), m_FilePath(filepath)
 {
 	ShaderProgramSource source = parse_shader();
 	m_RendererID = create_shader(source.vertexSource, source.fragmentSource);
@@ -99,6 +99,16 @@ void Shader::bind() const
 void Shader::unbind() const
 {
 	GLCall(glUseProgram(0));
+}
+
+void Shader::set_uniform_1i(const std::string& name, int value)
+{
+	GLCall(glUniform1i(get_uniform_location(name), value));
+}
+
+void Shader::set_uniform_1f(const std::string& name, float value)
+{
+	GLCall(glUniform1f(get_uniform_location(name), value));
 }
 
 void Shader::set_uniform_4f(const std::string& name, float v0, float v1, float v2, float v3)
