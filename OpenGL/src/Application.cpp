@@ -156,19 +156,49 @@ int main()
 	unsigned int shader = create_shader(source.vertexSource, source.fragmentSource);
 	GLCall(glUseProgram(shader));
 
+	GLCall(int location = glGetUniformLocation(shader, "u_Color"));
+	ASSERT(location != -1);
+
+	float r = 0.0f;
+	float increment = 0.05f;
+
+	const double fpsLimit = 1.0 / 60.0;
+	double lastUpdateTime = 0;	// number of seconds since the last loop
+	double lastFrameTime = 0;	// number of seconds since the last frame
+
 	// Loop until the user closes the window
 	while (!glfwWindowShouldClose(window))
 	{
-		// Render here
-		GLCall(glClear(GL_COLOR_BUFFER_BIT));
-
-		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL));
-
-		// Swap front and back buffers
-		GLCall(glfwSwapBuffers(window));
+		double now = glfwGetTime();
+		double deltaTime = now - lastUpdateTime;
 
 		// Poll for and process events
-		GLCall(glfwPollEvents());
+		glfwPollEvents();
+
+		// Application logic here, using deltaTime if necessary
+
+		if ((now - lastFrameTime) >= fpsLimit)
+		{
+			// Render here
+			GLCall(glClear(GL_COLOR_BUFFER_BIT));
+
+			GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
+			GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL));
+
+			if (r > 1.0f)
+				increment = -0.05f;
+			else if (r < 0.0f)
+				increment = 0.05f;
+			r += increment;
+
+			// Swap front and back buffers
+			glfwSwapBuffers(window);
+
+			// Set last frame update
+			lastFrameTime = now;
+		}
+		
+		lastUpdateTime = now;
 	}
 
 	GLCall(glDeleteProgram(shader));
