@@ -11,3 +11,10 @@
 
 void glClearError();
 bool glLogCall(const char* function, const char* file, int line);
+
+class Renderer
+{
+public:
+	void clear() const;
+	void draw(const class VertexArray& va, const class IndexBuffer& ib, const class Shader& shader) const;
+};
