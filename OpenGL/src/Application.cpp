@@ -14,6 +14,12 @@
 #include "Shader.h"
 #include "Texture.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 int main()
 {
 	// Initialize the library
@@ -24,8 +30,10 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+	const float windowWidth = 1440.0f, windowHeight = 1080.0f;
+
 	// Create a windowed mode window and its OpenGL context
-	GLFWwindow* window = glfwCreateWindow(1440, 1080, "Hello World!", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow((int)windowWidth, (int)windowHeight, "Hello World!", nullptr, nullptr);
 	if (!window)
 	{
 		glfwTerminate();
@@ -34,6 +42,7 @@ int main()
 
 	// Make the window's context current
 	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1);
 
 	if (glewInit() != GLEW_OK)
 		return -1;
@@ -45,10 +54,10 @@ int main()
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
 		float positions[] = {
-			-0.5f, -0.5f, 0.0f, 0.0f, // 0
-			 0.5f, -0.5f, 1.0f, 0.0f, // 1
-			 0.5f,  0.5f, 1.0f, 1.0f, // 2
-			-0.5f,  0.5f, 0.0f, 1.0f // 3
+			200.0f, 200.0f, 0.0f, 0.0f, // 0
+			400.0f, 200.0f, 1.0f, 0.0f, // 1
+			400.0f, 400.0f, 1.0f, 1.0f, // 2
+			200.0f, 400.0f, 0.0f, 1.0f // 3
 		};
 
 		unsigned int indices[] = {
@@ -65,6 +74,9 @@ int main()
 		va.add_buffer(vb, layout);
 
 		IndexBuffer ib(indices, 3 * 2);
+		
+		glm::mat4 proj = glm::ortho(0.0f, windowWidth, 0.0f, windowHeight, -1.0f, 1.0f);
+		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100.0, 0.0, 0.0));
 
 		Shader shader("res/shaders/Basic.shader");
 		shader.bind();
@@ -80,12 +92,17 @@ int main()
 		ib.unbind();
 		Renderer renderer;
 
-		float r = 0.0f;
-		float increment = 3.0f;
+		ImGui::CreateContext();
+		ImGui_ImplOpenGL3_Init(); 
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		ImGui::StyleColorsDark();
 
 		const double fpsLimit = 1.0 / 60.0;
 		double lastUpdateTime = 0;	// number of seconds since the last loop
 		double lastFrameTime = 0;	// number of seconds since the last frame
+
+		glm::vec3 translation(200.0, 200.0, 0.0);
 
 		// Loop until the user closes the window
 		while (!glfwWindowShouldClose(window))
@@ -97,19 +114,33 @@ int main()
 			glfwPollEvents();
 
 			// Application logic here, using deltaTime if necessary
-			if (r > 1.0f || r < 0.0f)
-				increment *= -1;
-			r += increment * deltaTime;
 
 			if ((now - lastFrameTime) >= fpsLimit)
 			{
-				// Render here
 				renderer.clear();
+				
+				ImGui_ImplOpenGL3_NewFrame();
+				ImGui_ImplGlfw_NewFrame();
+				ImGui::NewFrame();
+				
+				// Render here
+				glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+				glm::mat4 mvp = proj * view * model;
 
 				shader.bind();
-				shader.set_uniform_4f("u_Color", r, 0.3f, 0.8f, 1.0f);
-				
+				shader.set_uniform_mat4f("u_MVP", mvp);
 				renderer.draw(va, ib, shader);
+
+				{
+					ImGui::Begin("Model View Projection");
+					ImGui::SetWindowFontScale(2.0f);
+					ImGui::SliderFloat3("Translation", &translation.x, 0.0f, windowWidth);
+					ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+					ImGui::End();
+				}
+
+				ImGui::Render();
+				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 				// Swap front and back buffers
 				glfwSwapBuffers(window);
@@ -122,6 +153,9 @@ int main()
 		}
 	}
 
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 	glfwTerminate();
 	return 0;
 }
