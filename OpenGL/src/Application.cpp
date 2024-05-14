@@ -57,7 +57,11 @@ int main()
 		double lastFrameTime = 0;	// number of seconds since the last frame
 
 		// Setup here
-		test::TestClearColor test;
+		test::Test* currentTest = nullptr;
+		test::TestMenu* testMenu = new test::TestMenu(currentTest);
+		currentTest = testMenu;
+
+		testMenu->RegisterTest<test::TestClearColor>("Clear Color");
 
 		while (!glfwWindowShouldClose(window))
 		{
@@ -66,21 +70,34 @@ int main()
 			glfwPollEvents();
 
 			// Application logic here, using deltaTime if necessary
-			test.OnUpdate(deltaTime);
+			if (currentTest)
+				currentTest->OnUpdate(deltaTime);
 
 			if ((now - lastFrameTime) >= fpsLimit)
 			{
 				renderer.clear();
 				
 				// Render here
-				test.OnRender();
+				if (currentTest)
+					currentTest->OnRender();
 
 				ImGui_ImplOpenGL3_NewFrame();
 				ImGui_ImplGlfw_NewFrame();
 				ImGui::NewFrame();
 				
 				// ImGui render here
-				test.OnImGuiRender();
+				if (currentTest)
+				{
+					ImGui::Begin("Test");
+					ImGui::SetWindowFontScale(1.5f);
+					if (currentTest != testMenu && ImGui::Button("<-"))
+					{
+						delete currentTest;
+						currentTest = testMenu;
+					}
+					currentTest->OnImGuiRender();
+					ImGui::End();
+				}
 
 				ImGui::Render();
 				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -90,6 +107,10 @@ int main()
 
 			lastUpdateTime = now;
 		}
+
+		delete currentTest;
+		if (currentTest != testMenu)
+			delete testMenu;
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();

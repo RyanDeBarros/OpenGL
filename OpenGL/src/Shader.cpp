@@ -8,7 +8,8 @@
 
 #include "Renderer.h"
 
-Shader::Shader(const std::string& filepath) : m_RendererID(0), m_FilePath(filepath)
+Shader::Shader(const std::string& filepath)
+	: m_RendererID(0), m_FilePath(filepath)
 {
 	ShaderProgramSource source = parse_shader();
 	m_RendererID = create_shader(source.vertexSource, source.fragmentSource);
