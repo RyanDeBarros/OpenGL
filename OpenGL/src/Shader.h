@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gl/glew.h"
+
 #include <string>
 #include <unordered_map>
 
@@ -16,7 +18,7 @@ class Shader
 private:
 	unsigned int m_RendererID;
 	std::string m_FilePath;
-	std::unordered_map<std::string, int> m_UniformLocationCache;
+	mutable std::unordered_map<std::string, GLint> m_UniformLocationCache;
 public:
 	Shader(const std::string& filepath);
 	~Shader();
@@ -33,5 +35,5 @@ private:
 	ShaderProgramSource parse_shader();
 	unsigned int compile_shader(unsigned int type, const std::string& source);
 	unsigned int create_shader(const std::string& vertexShader, const std::string& fragmentShader);
-	unsigned int get_uniform_location(const std::string& name);
+	unsigned int get_uniform_location(const std::string& name) const;
 };

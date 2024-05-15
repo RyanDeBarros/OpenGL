@@ -1,3 +1,5 @@
+#include "Application.h"
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -14,6 +16,7 @@
 
 #include "Renderer.h"
 #include "tests/TestClearColor.h"
+#include "tests/TestTexture2D.h"
 
 int main()
 {
@@ -23,8 +26,6 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	const float windowWidth = 1440.0f, windowHeight = 1080.0f;
 
 	GLFWwindow* window = glfwCreateWindow((int)windowWidth, (int)windowHeight, "Hello World!", nullptr, nullptr);
 	if (!window)
@@ -44,8 +45,6 @@ int main()
 		GLCall(glEnable(GL_BLEND))
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-		Renderer renderer;
-
 		ImGui::CreateContext();
 		ImGui_ImplOpenGL3_Init(); 
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -62,6 +61,7 @@ int main()
 		currentTest = testMenu;
 
 		testMenu->RegisterTest<test::TestClearColor>("Clear Color");
+		testMenu->RegisterTest<test::TestTexture2D>("Texture 2D");
 
 		while (!glfwWindowShouldClose(window))
 		{

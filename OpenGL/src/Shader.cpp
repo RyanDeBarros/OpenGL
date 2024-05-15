@@ -91,7 +91,6 @@ unsigned int Shader::create_shader(const std::string& vertexShader, const std::s
 	return program;
 }
 
-
 void Shader::bind() const
 {
 	GLCall(glUseProgram(m_RendererID));
@@ -122,7 +121,7 @@ void Shader::set_uniform_mat4f(const std::string& name, const glm::mat4& matrix)
 	GLCall(glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, &matrix[0][0]));
 }
 
-unsigned int Shader::get_uniform_location(const std::string& name)
+unsigned int Shader::get_uniform_location(const std::string& name) const
 {
 	if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
 		return m_UniformLocationCache[name];
