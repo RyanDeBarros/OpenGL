@@ -16,7 +16,7 @@ namespace test {
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 	
-	void TestClearColor::OnUpdate(float deltaTime)
+	void TestClearColor::OnUpdate(double deltaTime)
 	{
 	}
 	

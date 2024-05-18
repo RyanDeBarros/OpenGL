@@ -8,10 +8,17 @@
 
 #include "Renderer.h"
 
-Shader::Shader(const std::string& filepath)
-	: m_RendererID(0), m_FilePath(filepath)
+Shader::Shader(const std::string& singlefile)
+	: m_RendererID(0)
 {
-	ShaderProgramSource source = parse_shader();
+	ShaderProgramSource source = parse_shader(singlefile);
+	m_RendererID = create_shader(source.vertexSource, source.fragmentSource);
+}
+
+Shader::Shader(const std::string& vertex_file, const std::string& fragment_file)
+	: m_RendererID(0)
+{
+	ShaderProgramSource source = parse_shader(vertex_file, fragment_file);
 	m_RendererID = create_shader(source.vertexSource, source.fragmentSource);
 }
 
@@ -20,9 +27,9 @@ Shader::~Shader()
 	GLCall(glDeleteProgram(m_RendererID));
 }
 
-ShaderProgramSource Shader::parse_shader()
+ShaderProgramSource Shader::parse_shader(const std::string& singlefile)
 {
-	std::ifstream stream(m_FilePath);
+	std::ifstream stream(singlefile);
 
 	enum class ShaderType
 	{
@@ -47,6 +54,21 @@ ShaderProgramSource Shader::parse_shader()
 		}
 	}
 	return { ss[0].str(), ss[1].str() };
+}
+
+std::string fileread(const std::string& filepath)
+{
+	std::ifstream stream(filepath);
+	std::stringstream ss;
+	std::string line;
+	while (getline(stream, line))
+		ss << line << "\n";
+	return ss.str();
+}
+
+ShaderProgramSource Shader::parse_shader(const std::string& vertex_shader, const std::string& fragment_shader)
+{
+	return { fileread(vertex_shader), fileread(fragment_shader) };
 }
 
 unsigned int Shader::compile_shader(unsigned int type, const std::string& source)
@@ -109,6 +131,16 @@ void Shader::set_uniform_1i(const std::string& name, int value)
 void Shader::set_uniform_1f(const std::string& name, float value)
 {
 	GLCall(glUniform1f(get_uniform_location(name), value));
+}
+
+void Shader::set_uniform_1d(const std::string& name, double value)
+{
+	GLCall(glUniform1d(get_uniform_location(name), value));
+}
+
+void Shader::set_uniform_2f(const std::string& name, float v0, float v1)
+{
+	GLCall(glUniform2f(get_uniform_location(name), v0, v1));
 }
 
 void Shader::set_uniform_4f(const std::string& name, float v0, float v1, float v2, float v3)

@@ -17,6 +17,7 @@
 #include "Renderer.h"
 #include "tests/TestClearColor.h"
 #include "tests/TestTexture2D.h"
+#include "tests/TestSlideshow.h"
 
 int main()
 {
@@ -62,6 +63,10 @@ int main()
 
 		testMenu->RegisterTest<test::TestClearColor>("Clear Color");
 		testMenu->RegisterTest<test::TestTexture2D>("Texture 2D");
+		testMenu->RegisterTest<test::TestSlideshow, std::vector<std::pair<std::string, std::string>>>("Slideshow", {
+				{"res/shaders/test.frag", "test"},
+		});
+		testMenu->SwitchToTest("Slideshow");
 
 		while (!glfwWindowShouldClose(window))
 		{
@@ -88,10 +93,11 @@ int main()
 				// ImGui render here
 				if (currentTest)
 				{
-					ImGui::Begin("Test");
+					ImGui::Begin("Test Collection");
 					ImGui::SetWindowFontScale(1.5f);
 					if (currentTest != testMenu && ImGui::Button("<-"))
 					{
+						// Return to main menu
 						delete currentTest;
 						currentTest = testMenu;
 					}

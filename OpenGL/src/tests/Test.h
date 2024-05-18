@@ -12,7 +12,7 @@ namespace test {
 		Test() {}
 		virtual ~Test() {}
 
-		virtual void OnUpdate(float deltaTime) {}
+		virtual void OnUpdate(double deltaTime) {}
 		virtual void OnRender() {}
 		virtual void OnImGuiRender() {}
 	};
@@ -24,12 +24,14 @@ namespace test {
 
 		void OnImGuiRender() override;
 
-		template<typename T>
-		void RegisterTest(const std::string& name)
+		template<typename T, typename... Args>
+		inline void RegisterTest(const std::string& name, Args... args)
 		{
 			std::cout << "Registering test " << name << std::endl;
-			m_Tests.push_back(std::make_pair(name, []() { return new T(); }));
+			m_Tests.push_back(std::make_pair(name, [=]() { return new T(args...); }));
 		}
+
+		void SwitchToTest(const std::string& name);
 	private:
 		Test*& m_CurrentTest;
 		std::vector<std::pair<std::string, std::function<Test*()>>> m_Tests;

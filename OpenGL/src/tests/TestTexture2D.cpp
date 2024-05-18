@@ -47,7 +47,7 @@ namespace test {
 		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 	}
 	
-	void TestTexture2D::OnUpdate(float deltaTime)
+	void TestTexture2D::OnUpdate(double deltaTime)
 	{
 	}
 	
