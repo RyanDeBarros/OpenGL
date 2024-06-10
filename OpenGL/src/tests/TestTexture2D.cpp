@@ -38,7 +38,7 @@ namespace test {
 		m_Shader = std::make_unique<Shader>("res/shaders/Basic.shader");
 		m_Shader->bind();
 		m_Shader->set_uniform_4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
-		m_Texture = std::make_unique<Texture>("res/textures/TheChernoLogo.png");
+		m_Texture = std::make_unique<Texture>("res/textures/flag.png");
 		m_Shader->set_uniform_1i("u_Texture", 0);
 	}
 

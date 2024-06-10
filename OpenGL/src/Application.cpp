@@ -64,7 +64,8 @@ int main()
 		testMenu->RegisterTest<test::TestClearColor>("Clear Color");
 		testMenu->RegisterTest<test::TestTexture2D>("Texture 2D");
 		testMenu->RegisterTest<test::TestSlideshow, std::vector<std::pair<std::string, std::string>>>("Slideshow", {
-				{"res/shaders/test.frag", "test"},
+				{"res/shaders/RotatingStar.frag", "Rotating Star"},
+				{"res/shaders/SpinningSpotlights.frag", "Spinning Spotlights"},
 		});
 		testMenu->SwitchToTest("Slideshow");
 
